@@ -302,6 +302,16 @@ var Intercooler = Intercooler || (function() {
       }
     }
 
+    if (xhr.getResponseHeader('X-IC-JSON-BODY')) {
+      target = getTarget(elt);
+      var txt = xhr.responseText;
+      if (txt.indexOf("{") >= 0) {
+        $.each($.parseJSON(txt), function(event, args) {
+          triggerEvent(target, event, args);
+        });
+      }
+    }
+
     var localVars = xhr.getResponseHeader("X-IC-Set-Local-Vars");
     if (localVars) {
       $.each($.parseJSON(localVars), function(key, val) {
@@ -1227,6 +1237,11 @@ var Intercooler = Intercooler || (function() {
   }
 
   function processICResponse(responseContent, elt, forHistory) {
+    if (responseContent.indexOf("{") >= 0) {
+      log(elt, "JSON response, nothing to do here.", "DEBUG");
+      return;
+    }
+
     if (responseContent && responseContent != "" && responseContent != " ") {
 
       log(elt, "response content: \n" + responseContent, "DEBUG");
